@@ -48,7 +48,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/users/**").hasAnyAuthority(Permission.ADMIN_UPDATE.name())
                         .requestMatchers(HttpMethod.DELETE, "/users/**").hasAnyAuthority(Permission.ADMIN_DELETE.name())
                         
-                        .requestMatchers("/documents").hasAnyRole(Role.ADMIN.name())
+                        .requestMatchers("/documents/**").hasAnyRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/documents/**").hasAnyAuthority(Permission.ADMIN_READ.name())
                         .requestMatchers(HttpMethod.POST, "/documents/**").hasAnyAuthority(Permission.ADMIN_WRITE.name())
                         .requestMatchers(HttpMethod.PUT, "/documents/**").hasAnyAuthority(Permission.ADMIN_UPDATE.name())

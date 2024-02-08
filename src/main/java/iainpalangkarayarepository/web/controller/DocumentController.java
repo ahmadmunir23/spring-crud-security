@@ -1,24 +1,15 @@
 package iainpalangkarayarepository.web.controller;
 
-import iainpalangkarayarepository.web.entity.Document;
-import iainpalangkarayarepository.web.entity.User;
-import iainpalangkarayarepository.web.model.AllDocumentsResponse;
 import iainpalangkarayarepository.web.model.CreateDocumentRequest;
 import iainpalangkarayarepository.web.model.DocumentResponse;
+import iainpalangkarayarepository.web.model.UpdateDocumentRequest;
 import iainpalangkarayarepository.web.model.WebResponse;
-import iainpalangkarayarepository.web.repository.UserRepository;
 import iainpalangkarayarepository.web.service.DocumentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,7 +25,9 @@ public class DocumentController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public WebResponse<DocumentResponse> create(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CreateDocumentRequest request) {
+    public WebResponse<DocumentResponse> create(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody CreateDocumentRequest request) {
         DocumentResponse documentResponse = documentSerfice.create(userDetails, request);
         return WebResponse.<DocumentResponse>builder().data(documentResponse).build();
     }
@@ -43,11 +36,39 @@ public class DocumentController {
             path = "/documents",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<AllDocumentsResponse> getOne() {
-        AllDocumentsResponse allDocumentsResponse = new AllDocumentsResponse();
-        List<Document> documentResponse = documentSerfice.getAll();
-        allDocumentsResponse.setDocuments(documentResponse);
-        return new ResponseEntity<>(allDocumentsResponse, HttpStatus.OK);
+    public WebResponse<List<DocumentResponse>> getAll() {
+        List<DocumentResponse> documentResponse = documentSerfice.getAll();
+        return WebResponse.<List<DocumentResponse>>builder().data(documentResponse).build();
+    }
+    
+    @GetMapping(
+            path = "/documents/{uuId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<DocumentResponse> getOne(@PathVariable(name = "uuId") String uuId) {
+        DocumentResponse documentResponse = documentSerfice.getOne(uuId);
+        return WebResponse.<DocumentResponse>builder().data(documentResponse).build();
+    }
+    
+    @PatchMapping(
+            path = "/documents/{uuId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<DocumentResponse> updateOne(
+            @PathVariable(name = "uuId") String uuId,
+            @RequestBody UpdateDocumentRequest request) {
+        DocumentResponse documentResponse = documentSerfice.updateOne(uuId, request);
+        return WebResponse.<DocumentResponse>builder().data(documentResponse).build();
+    }
+    
+    @DeleteMapping(
+            path = "/documents/{uuId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    WebResponse<String> deleteOne(@PathVariable(name = "uuId") String uuId) {
+        documentSerfice.deleteOne(uuId);
+        return WebResponse.<String>builder().data("OK").build();
     }
 
 }

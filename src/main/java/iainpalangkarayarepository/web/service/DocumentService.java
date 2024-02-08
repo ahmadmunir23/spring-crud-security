@@ -4,6 +4,7 @@ import iainpalangkarayarepository.web.entity.Document;
 import iainpalangkarayarepository.web.entity.User;
 import iainpalangkarayarepository.web.model.CreateDocumentRequest;
 import iainpalangkarayarepository.web.model.DocumentResponse;
+import iainpalangkarayarepository.web.model.UpdateDocumentRequest;
 import iainpalangkarayarepository.web.repository.DocumentRepository;
 import iainpalangkarayarepository.web.repository.UserRepository;
 import lombok.*;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,34 +55,58 @@ public class DocumentService {
 
     }
     
-    public List<Document> getAll() {
-        return documentRepository.getAllDocuments();
+    public List<DocumentResponse> getAll() {
+        List<Document> documents = documentRepository.getAllDocuments();
+        return toDocumentResponse(documents);
+    }
+    
+    public DocumentResponse getOne(String uuId) {
+        
+        Document document = documentRepository.findById(uuId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+        return toDocumentResponse(document);
+    }
+    
+    @Transactional
+    public DocumentResponse updateOne(String uuId, UpdateDocumentRequest request) {
+        Document document = documentRepository.findById(uuId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+        
+        document.setTitle(request.getTitle());
+        documentRepository.save(document);
+        return toDocumentResponse(document);
+    }
+    
+    @Transactional
+    public void deleteOne(String uuId) {
+        documentRepository.deleteById(uuId);
     }
     
     private DocumentResponse toDocumentResponse(Document document) {
         return DocumentResponse.builder()
+                .id(document.getId())
                 .title(document.getTitle())
                 .url(document.getUrl())
                 .createdAt(new Date().toInstant())
                 .updatedAt(document.getUpdatedAt())
+                .user(document.getUser().getUsername())
                 .build();
     }
     
     private List<DocumentResponse> toDocumentResponse(List<Document> documents) {
-        List<DocumentResponse> allDocuments = new ArrayList<>();
-        documents.forEach(document -> {
-            allDocuments.add(
-                    DocumentResponse.builder()
-                            .title(document.getTitle())
-                            .url(document.getUrl())
-                            .createdAt(document.getCreatedAt())
-                            .updatedAt(document.getUpdatedAt())
-                            .build()
-            );
-        });
+        return documents.stream()
+                .map(document -> DocumentResponse
+                        .builder()
+                        .user(document.getUser().getUsername())
+                        .title(document.getTitle())
+                        .id(document.getId())
+                        .createdAt(document.getCreatedAt())
+                        .updatedAt(document.getUpdatedAt())
+                        .url(document.getUrl())
+                        .build()
+        ).collect(Collectors.toList());
         
-        return allDocuments;
+        
     }
     
-
 }

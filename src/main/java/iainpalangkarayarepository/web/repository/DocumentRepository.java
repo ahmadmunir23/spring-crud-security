@@ -11,7 +11,7 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
     
     @Query(
             value = """
-            select * from documents
+            select d.id, d.created_at, d.updated_at, d.title, d.url, u.username FROM documents d JOIN users u ON (d.username = u.username)
             """,
             nativeQuery = true
     )

@@ -1,28 +1,19 @@
 package iainpalangkarayarepository.web.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DocumentResponse {
+public class UpdateDocumentRequest {
     
-    private String id;
-
+    @Size(max = 100)
+    @NotBlank
     private String title;
-
-    private String url;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
-    
-    private String user;
-
 }
